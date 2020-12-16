@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
+import components.Ball;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -41,6 +42,7 @@ public class Game implements Serializable {
 	private boolean started;
 	private int stars;
 	
+	private Ball b;
 	private Obstacle po;
 
 	private transient Timeline mainTimeline;
@@ -50,7 +52,7 @@ public class Game implements Serializable {
 		stars = 0;
 		
 		po = new PlusObstacle();
-		
+		b = new Ball();
 	}
 	
 	public void drawScene() {
@@ -65,7 +67,7 @@ public class Game implements Serializable {
         scoreLabel.setStyle("-fx-text-fill: red;");
         scoreLabel.setLayoutX(200);
         
-		rootNode.getChildren().addAll(pauseButton, scoreLabel, po.getReadyObstacleNode());
+		rootNode.getChildren().addAll(pauseButton, scoreLabel, po.getReadyObstacleNode(), b.getReadyNode());
 		
 		addHandlers();
 	}
@@ -115,7 +117,7 @@ public class Game implements Serializable {
                     if(!started)
                         resumeGame();
                     
-                   // b.bounce();       			
+                    b.bounce();       			
         		}
         		else if(keyPress.getCode() == KeyCode.P) {
                     if(!started) {
@@ -190,7 +192,7 @@ public class Game implements Serializable {
 	}
 
 	public void updateBallPosition() {
-		
+		b.updatePosition(timeUnit);
 	}
 	
 	public void pauseGame() {
