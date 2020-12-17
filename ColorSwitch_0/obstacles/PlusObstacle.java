@@ -5,10 +5,14 @@ import javafx.scene.shape.ArcTo;
 import javafx.scene.shape.HLineTo;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
+import main_src.Game;
 
 public class PlusObstacle extends Obstacle {
 	
 	class PlusObstaclePart extends RotatingObstaclePart {
+		
+	    private final static double armLength = 80;
+	    private final static double width = 10;
 
 	    public PlusObstaclePart(double centreX, double centreY, double initialAngle, int armColor) {
 	        super(centreX, centreY, armColor, initSpeed, initialAngle);
@@ -25,17 +29,17 @@ public class PlusObstacle extends Obstacle {
 	        m1.setX(centreX);
 	        m1.setY(centreY);
 
-	        LineTo dl1 = new LineTo(centreX+8, centreY+8);
+	        LineTo dl1 = new LineTo(centreX+width, centreY+width);
 
-	        HLineTo hl1 = new HLineTo(centreX+70);
+	        HLineTo hl1 = new HLineTo(centreX+armLength);
 
 	        ArcTo ai = new ArcTo();
-	        ai.setX(centreX+70);
-	        ai.setY(centreY-8);
-	        ai.setRadiusX(8);
-	        ai.setRadiusY(8);
+	        ai.setX(centreX+armLength);
+	        ai.setY(centreY-width);
+	        ai.setRadiusX(width);
+	        ai.setRadiusY(width);
 
-	        HLineTo hl2 = new HLineTo(centreX+8);
+	        HLineTo hl2 = new HLineTo(centreX+width);
 
 	        LineTo dl2 = new LineTo(centreX, centreY);
 
@@ -44,11 +48,10 @@ public class PlusObstacle extends Obstacle {
 	}
 	
 	private static final int initSpeed = 5;
-	private static final double initX = 200;
-	private static final double initY = 190;
+	private static final double initX = 2*Game.getScreenwidth()/3;
 
-	public PlusObstacle() {
-		super(initX, initY, initSpeed);
+	public PlusObstacle(double y) {
+		super(initX, y, initSpeed);
 	}
 
 	@Override
