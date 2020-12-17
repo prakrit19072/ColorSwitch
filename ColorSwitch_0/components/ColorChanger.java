@@ -3,6 +3,7 @@ package components;
 import java.io.Serializable;
 
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Arc;
 import javafx.scene.shape.ArcType;
@@ -13,26 +14,29 @@ import main_src.Game;
 
 public class ColorChanger implements Serializable, Collidable {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	
-	private final static double xPos = Game.getScreenwidth()/2;
-	private double yPos;
-	
-	private boolean collected;
-	
-	private transient Group colorChangerNode;
-	
-	public ColorChanger(double y) {
-		this.yPos = y;
-		collected = false;
-	}
-	
-	public void drawNode() {
-    	Arc arc, arc1, arc2, arc3;
-    	
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
+
+    private final static double xPos = Game.getScreenwidth()/2;
+    private double yPos;
+
+    private boolean collected;
+
+    private transient Group colorChangerNode;
+
+    private int colorNo;
+
+    public ColorChanger(double y,int color) {
+        this.yPos = y;
+        collected = false;
+        this.colorNo=color;
+    }
+
+    public void drawNode() {
+        Arc arc, arc1, arc2, arc3;
+
         arc= new Arc();
         arc.setCenterX(xPos);
         arc.setCenterY(yPos);
@@ -83,19 +87,19 @@ public class ColorChanger implements Serializable, Collidable {
 
         colorChangerNode = new Group();
         colorChangerNode.getChildren().addAll(arc,arc1,arc2,arc3);
+        colorChangerNode.setVisible(!collected);
+    }
 
-	}
-	
-	public Group getReadycolorChangerNode() {
-		drawNode();
-		return colorChangerNode;
-	}
+    public Group getReadycolorChangerNode() {
+        drawNode();
+        return colorChangerNode;
+    }
 
-	public Group getcolorChangerNode() {
-		return colorChangerNode;
-	}
+    public Group getcolorChangerNode() {
+        return colorChangerNode;
+    }
 
-	
+
     public double getX() {
         return xPos;
     }
@@ -108,28 +112,37 @@ public class ColorChanger implements Serializable, Collidable {
         colorChangerNode.setLayoutY(colorChangerNode.getLayoutY()+dy);
         this.yPos = y;
     }
-    
-    public boolean isCollected() {
-		return collected;
-	}
-    public void setCollected(boolean collected) {
-		this.collected = collected;
-		colorChangerNode.setVisible(!collected);
-	}
 
-	@Override
-	public boolean isColliding(Ball b) {
-		if(collected)
-			return false;
-		boolean colliding = false;
-	//	colliding = (((Path) Shape.intersect(b.getNode(), colorChangerNode)).getElements().size())>0;		
-		
-		if(colliding) {
-			setCollected(true);
-			return true;
-		}
-		
-		return false;
-	}
+    public boolean isCollected() {
+        return collected;
+    }
+    public void setCollected(boolean collected) {
+        this.collected = collected;
+        colorChangerNode.setVisible(!collected);
+    }
+
+    public void assignColor(Ball b){
+        b.setColorNo(colorNo);
+    }
+
+    public void setColorNo(int colorNo){
+        this.colorNo=colorNo;
+    }
+
+    @Override
+    public boolean isColliding(Ball b) {
+        if(collected)
+            return false;
+
+        for(Node a: colorChangerNode.getChildrenUnmodifiable()) {
+            if((((Path) Shape.intersect(b.getNode(), (Arc)a)).getElements().size())>0) {
+                setCollected(true);
+                assignColor(b);
+                return true;
+            }
+        }
+
+        return false;
+    }
 
 }

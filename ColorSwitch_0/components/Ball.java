@@ -8,21 +8,21 @@ import main_src.ColorScheme;
 import main_src.Game;
 
 public class Ball implements Serializable {
-	
-	private static final long serialVersionUID = 0;
-	
-	private transient Circle ballNode;
+
+    private static final long serialVersionUID = 0;
+
+    private transient Circle ballNode;
 
     private final static double xPos = Game.getScreenwidth()/2;
     private double yPos;
     private int colorNo;
-    
+
     private final static int radius = 10;
-    private final static int defaultColorNo = 1;  
-    
+    private final static int defaultColorNo = 1;
+
     private double speed; //pixels/sec
     public final static double acc = 1500; //pixels/sec
-    
+
     public Ball() {
         this.colorNo = defaultColorNo;
         this.yPos = Game.getScreenheight()-100;
@@ -36,16 +36,16 @@ public class Ball implements Serializable {
         ballNode.setCenterX(this.xPos);
         ballNode.setCenterY(this.yPos);
     }
-    
+
 
     public Circle getNode() {
-		return ballNode;
-	}
+        return ballNode;
+    }
 
     public Circle getReadyNode() {
-    	drawBall();
-		return ballNode;
-	}
+        drawBall();
+        return ballNode;
+    }
 
     public void bounce() {
         this.speed = 310;
@@ -57,7 +57,7 @@ public class Ball implements Serializable {
         this.speed -= Ball.acc*dt;
         if(this.speed<-600) {
             this.speed = -600;
-        }   
+        }
     }
 
     public double getX() {
@@ -81,9 +81,21 @@ public class Ball implements Serializable {
     public Color getColor() {
         return ColorScheme.getColor(colorNo);
     }
-    
+
     public int getColorNo() {
-		return colorNo;
-	}
-    
+        return colorNo;
+    }
+
+    public void setColorNo(int colorNo){
+        this.colorNo= colorNo;
+        ballNode.setFill(getColor());
+    }
+
+
+
+
+
+
+
+
 }
