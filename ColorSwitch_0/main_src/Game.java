@@ -1,11 +1,11 @@
 package main_src;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import java.io.*;
+import java.util.ArrayList;
 
+
+import components.Ball;
+import components.ComponentGroup;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -22,44 +22,53 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import obstacles.Obstacle;
-import obstacles.PlusObstacle;
 
 public class Game implements Serializable {
 
     /**
      *
      */
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 3L;
 
     private final static int screenHeight = 600;
     private final static int screenWidth = 300;
     private final static Color backgroundColor = Color.BLACK;
+    private final static double frameHeight = 3000;
     private transient Stage myStage;
-    private transient Scene Home;
+    private transient Scene Homescene;
 
     private static final double timeUnit = 0.015;
 
     private transient Scene curScene;
     private transient Group rootNode;
+    private transient Label scoreLabel;
 
     private boolean started;
     private int stars;
+    private int curGpNo;
 
-    private Obstacle po;
+    private Ball b;
+    private ArrayList<ComponentGroup> CompGrp;
 
     private transient Timeline mainTimeline;
 
     public Game() {
         started = false;
         stars = 0;
+        curGpNo = 0;
 
-        po = new PlusObstacle();
+        b = new Ball();
 
+        CompGrp = new ArrayList<ComponentGroup>(5);
+        CompGrp.add(0, new ComponentGroup(getScreenwidth()/2, 0, 1));
+        CompGrp.add(1, new ComponentGroup(getScreenwidth()/2, -1*screenHeight, 2));
+        CompGrp.add(2, new ComponentGroup(getScreenwidth()/2, -2*screenHeight, 3));
+        CompGrp.add(3, new ComponentGroup(getScreenwidth()/2, -3*screenHeight, 4));
+        CompGrp.add(4, new ComponentGroup(getScreenwidth()/2, -4*screenHeight, 5));
     }
 
     public void drawScene() {
-         VBox layout1;
+        VBox layout1;
         rootNode = new Group();
         curScene = new Scene(rootNode, screenWidth, screenHeight, backgroundColor);
 
@@ -84,7 +93,20 @@ public class Game implements Serializable {
         button2.setStyle("-fx-font-size:40;-fx-background-color: transparent; -fx-text-fill: green");
         button3.setStyle("-fx-font-size:40;-fx-background-color: transparent; -fx-text-fill: yellow");
         button1.setOnAction(e -> resGame(myStage,curScene));
-        button3.setOnAction(e-> retMain(myStage,Home));
+        button2.setOnAction(e-> {
+            try {
+                saveGame();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
+        button3.setOnAction(e-> {
+            try {
+                retMain(myStage, Homescene);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        });
 
         layout1= new VBox(30);
         layout1.setSpacing(40);
@@ -102,18 +124,22 @@ public class Game implements Serializable {
 
         Scene paumenu= new Scene(layout1,500,500);
 
-       // pauseButton.setOnAction(e-> resumeGame());
+        // pauseButton.setOnAction(e-> resumeGame());
         pauseButton.setOnAction(e->pauGame(myStage,paumenu));
 
         //pauseButton.setOnAction(e->pauseGame());
 
 
-        Label scoreLabel = new Label();
+        scoreLabel = new Label();
         scoreLabel.setText("Stars Collected:"+stars);
         scoreLabel.setStyle("-fx-text-fill: red;");
         scoreLabel.setLayoutX(200);
 
-        rootNode.getChildren().addAll(pauseButton, scoreLabel, po.getReadyObstacleNode());
+        rootNode.getChildren().addAll(pauseButton, scoreLabel, b.getReadyNode());
+
+        for(ComponentGroup cg: CompGrp) {
+            rootNode.getChildren().add(cg.getReadyComponentGroupNode());
+        }
 
         addHandlers();
     }
@@ -163,7 +189,7 @@ public class Game implements Serializable {
                     if(!started)
                         resumeGame();
 
-                    // b.bounce();
+                    b.bounce();
                 }
                 else if(keyPress.getCode() == KeyCode.P) {
                     if(!started) {
@@ -174,7 +200,11 @@ public class Game implements Serializable {
                     }
                 }
                 else if(keyPress.getCode() == KeyCode.S) {
-                    saveGame();
+                    try {
+                        saveGame();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
 
             }
@@ -189,14 +219,60 @@ public class Game implements Serializable {
                 if(started) {
                     Thread th = new Thread(() -> updateBallPosition());
                     th.start();
-                    po.updatePos();
+                    for(ComponentGroup cg: CompGrp) {
+                        cg.updatePos();
+                    }
                     try {
                         th.join();
                     } catch (InterruptedException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
 
+                }
+                if(b.getY()<Game.screenHeight/2) {
+                    shiftDown((Game.screenHeight/2)-b.getY());
+                }
+                else if(b.getY()>Game.screenHeight) {
+                    endGameOptions();
+                }
+
+                switch (getCurCompGrp().checkCollison(b)) {
+
+                    case ComponentGroup.obstacleCollison:
+                        endGameOptions();
+                        break;
+
+                    case ComponentGroup.starCollison:
+                        stars++;
+                        curGpNo = (curGpNo+1)%CompGrp.size();
+                        scoreLabel.setText("Stars Collected:"+stars);
+                        break;
+
+                    case ComponentGroup.colorChangerCollison:
+
+                        break;
+
+                    default:
+                        break;
+                }
+                switch (getPrevCompGrp().checkCollison(b)) {
+
+                    case ComponentGroup.obstacleCollison:
+                        endGameOptions();
+                        break;
+
+                    case ComponentGroup.starCollison:
+                        stars++;
+                        curGpNo = (curGpNo+1)%CompGrp.size();
+                        scoreLabel.setText("Stars Collected:"+stars);
+                        break;
+
+                    case ComponentGroup.colorChangerCollison:
+
+                        break;
+
+                    default:
+                        break;
                 }
             }
         });
@@ -211,10 +287,59 @@ public class Game implements Serializable {
         return mainTimeline;
     }
 
-    public void saveGame() {
+    public void saveGame() throws Exception {
+
+        BufferedReader reader= new BufferedReader(new FileReader("File_Total.txt"));
+        String line1=reader.readLine();
+        String line2= reader.readLine();
+      //  System.out.println(line1+" "+line2);
+        int tgames= Integer.parseInt(line1.substring(13));
+        int tstars= Integer.parseInt(line2.substring(13));
+        tgames++;
+        String line3= line1.substring(0,13)+Integer.toString(tgames);
+        // if you want to add stars, add them here.
+        reader.close();
+
+        FileWriter writer = new FileWriter("File_Total.txt");
+
+        // Writes the content to the file
+        writer.write(line3+"\n");
+        writer.append(line2+"\n");
+        writer.flush();
+        writer.close();
+
+
+
+        String name="Save-"+Integer.toString(tgames);
+        Label l1= new Label("             Your file has been saved as "+name);
+        Button bt= new Button("        Ok");
+        l1.setStyle("-fx-font-size:20; -fx-background-color: transparent; -fx-text-fill: blue");
+        bt.setStyle("-fx-font-size:20; -fx-background-color: transparent; -fx-text-fill: red");
+        bt.setPrefHeight(50);
+        bt.setMaxWidth(Double.MAX_VALUE);
+        VBox lay= new VBox(30);
+        lay.setStyle("-fx-background-color: black");
+        lay.getChildren().addAll(l1,bt);
+        Scene promp= new Scene(lay,500,100);
+        myStage.setScene(promp);
+        bt.setOnAction(e-> {
+            try {
+                retMain(myStage,Homescene);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        });
+        FileWriter writer1 = new FileWriter("File_Names.txt",true);
+        String str= name+" TotalStars="+Integer.toString(tstars);
+        writer1.append(str+"\n");
+        writer1.flush();
+        writer1.close();
+
+
+
         ObjectOutputStream savedGame = null;
         try {
-            savedGame = new ObjectOutputStream(new FileOutputStream("star.txt"));
+            savedGame = new ObjectOutputStream(new FileOutputStream(name+".txt"));
             this.mainTimeline.pause();
             this.started = false;
             savedGame.writeObject(this);
@@ -237,20 +362,103 @@ public class Game implements Serializable {
 
     }
 
-    public void SetStage(Stage x, Scene Home){
-        this.myStage=x;
-        this.Home= Home;
+    private void shiftDown(double d) {
+        this.b.setY(b.getY()+d);
+        for(ComponentGroup cg: this.CompGrp) {
+            cg.verticalShift(d);
+        }
+    }
+
+    public void endGameOptions() {
+        // revive and exit
+        VBox layout= new VBox(30);
+        Button b1= new Button("Revive Player!");
+        Button b2= new Button("Return to Main Menu");
+        Button b3= new Button("Restart!");
+        b3.setMaxWidth(Double.MAX_VALUE);
+        b3.setPrefHeight(50);
+        b3.setStyle("-fx-font-size:40; -fx-background-color: transparent; -fx-text-fill: blue");
+        Image image = new Image("pause.jpg",500,500,false,false);
+        BackgroundImage myBI= new BackgroundImage(image,
+                BackgroundRepeat.REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT,
+                BackgroundSize.DEFAULT);
+        layout.setBackground(new Background(myBI));
+        b2.setMaxWidth(Double.MAX_VALUE);
+        b1.setPrefHeight(50);
+        b2.setPrefHeight(50);
+        b1.setMaxWidth(Double.MAX_VALUE);
+        b1.setStyle("-fx-font-size:40; -fx-background-color: transparent; -fx-text-fill: blue");
+        b2.setStyle("-fx-font-size:40; -fx-background-color: transparent; -fx-text-fill: blue");
+        layout.getChildren().addAll(b1,b2,b3);
+        Scene s1= new Scene(layout,500,500);
+        myStage.setScene(s1);
+        b1.setOnAction(e-> {
+            try {
+                resGame1(myStage,curScene);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        });
+        b2.setOnAction(e-> {
+            try {
+                retMain(myStage, Homescene);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        });
+        b.setY(Game.getScreenheight()/3 );
+        b3.setOnAction(e-> {
+            try {
+                restart();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        });
+
+
+
+
+
+
+
+
+      //  Scene collide= new Scene();
+        pauseGame();
+
+
+
+
+
+
     }
 
 
-    public void updateBallPosition() {
+    public void SetStage(Stage x, Scene Home){
+        this.myStage=x;
+        this.Homescene = Home;
+    }
 
+    public void restart() throws IOException {
+        Home.restart=true;
+        retMain(myStage,Homescene);
+
+    }
+
+
+
+
+
+
+
+    public void updateBallPosition() {
+        b.updatePosition(timeUnit);
     }
 
     public void pauseGame() {
         started = false;
         mainTimeline.pause();
     }
+
 
     public void resumeGame() {
         started = true;
@@ -266,8 +474,95 @@ public class Game implements Serializable {
         resumeGame();
         stg.setScene(curScene);
     }
-    public void retMain(Stage stg, Scene Home){
-        stg.setScene(Home);
+
+    public void resGame1(Stage stg, Scene curScene) throws IOException {
+
+        if(Home.totalstars>=10){
+
+            Home.totalstars-=10;
+            Home.l2.setText("                            Total Stars Collected: "+Home.totalstars);
+
+            BufferedReader reader= new BufferedReader(new FileReader("File_Total.txt"));
+            String ln1= reader.readLine();
+            reader.close();
+
+            FileWriter writer1 = new FileWriter("File_Total.txt");
+            writer1.write(ln1+"\n");
+            writer1.append("Total Stars: "+Home.totalstars);
+            writer1.flush();
+            writer1.close();
+            resumeGame();
+            stg.setScene(curScene);
+
+        }
+        else{
+            VBox layout= new VBox(30);
+            Label lb1= new Label("                You Dont have enough Stars");
+            Label lb2= new Label("                 Returning to Main Menu........");
+            lb1.setStyle("-fx-font-size:20; -fx-background-color: transparent; -fx-text-fill: blue");
+            lb2.setStyle("-fx-font-size:20; -fx-background-color: transparent; -fx-text-fill: blue");
+            Button bt= new Button("OK");
+            bt.setStyle("-fx-font-size:40; -fx-background-color: transparent; -fx-text-fill: black");
+            Image image = new Image("pause.jpg",500,500,false,false);
+            BackgroundImage myBI= new BackgroundImage(image,
+                    BackgroundRepeat.REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT,
+                    BackgroundSize.DEFAULT);
+            layout.setBackground(new Background(myBI));
+            bt.setPrefHeight(50);
+            bt.setMaxWidth(Double.MAX_VALUE);
+
+            layout.getChildren().addAll(lb1,lb2,bt);
+            Scene fail= new Scene(layout,500,500);
+            myStage.setScene(fail);
+            bt.setOnAction(e-> {
+                try {
+                    retMain(myStage,Homescene);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            });
+
+
+
+
+
+        }
+
+
+
+
+
+    }
+    public void retMain(Stage stg, Scene Homescene) throws IOException {
+        Home.totalstars+=stars;
+        Home.l2.setText("                            Total Stars Collected: "+Home.totalstars);
+
+        BufferedReader reader= new BufferedReader(new FileReader("File_Total.txt"));
+        String ln1= reader.readLine();
+        reader.close();
+
+        FileWriter writer1 = new FileWriter("File_Total.txt");
+        writer1.write(ln1+"\n");
+        writer1.append("Total Stars: "+Home.totalstars);
+        writer1.flush();
+        writer1.close();
+
+
+
+        stg.setScene(Homescene);
+    }
+
+    public static double getFrameheight() {
+        return frameHeight;
+    }
+
+    private ComponentGroup getCurCompGrp() {
+        // write code for it
+        return CompGrp.get(curGpNo);
+    }
+    private ComponentGroup getPrevCompGrp() {
+        // write code for it
+        return CompGrp.get((curGpNo-1+CompGrp.size())%CompGrp.size());
     }
 
 
