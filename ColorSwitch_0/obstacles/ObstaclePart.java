@@ -70,13 +70,13 @@ public abstract class ObstaclePart implements Serializable, Positioned, Collidab
     public void setSpeed(double speed) {this.speed = speed;}
 
     public Transform getMovement() {return movement;}
-    
+
     @Override
     public boolean isColliding(Ball b) {
-    	
-    	if(b.getColorNo()==this.colorNo)
-    		return false;
-    	return (((Path) Shape.intersect(b.getNode(), obstaclePartNode)).getElements().size())>0;
+
+        if(b.getColorNo()==this.colorNo)
+            return false;
+        return (((Path) Shape.intersect(b.getNode(), obstaclePartNode)).getElements().size())>0;
     }
 
 }

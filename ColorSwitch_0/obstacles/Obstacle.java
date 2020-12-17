@@ -17,7 +17,7 @@ public abstract class Obstacle implements Serializable, Positioned, Collidable {
     protected double xPos, yPos;
     protected double speed;
 
-    private final static double maxSpeed = 65;
+    private final static double maxSpeed = 25;
 
     protected transient Group obstacleNode;
 
@@ -67,6 +67,19 @@ public abstract class Obstacle implements Serializable, Positioned, Collidable {
             p.setSpeed(speed);
     }
 
+    public void speedUp(){
+
+        if(speed<maxSpeed){
+            speed+=10;
+            for (ObstaclePart op:parts) {
+                op.setSpeed(getSpeed());
+            }
+        }
+
+
+    }
+
+
     @Override
     public void updatePos() {
         // TODO Auto-generated method stub
@@ -76,16 +89,16 @@ public abstract class Obstacle implements Serializable, Positioned, Collidable {
             o.updatePos();
         }
     }
-    
+
     @Override
     public boolean isColliding(Ball b) {
-    	
-    	for(ObstaclePart op: parts) {
-    		if(op.isColliding(b))
-    			return true;
-    	}
-    	
-    	return false;
+
+        for(ObstaclePart op: parts) {
+            if(op.isColliding(b))
+                return true;
+        }
+
+        return false;
     }
 
 }

@@ -9,60 +9,60 @@ import main_src.Game;
 
 public class TriangleObstacle extends Obstacle {
 
-	class TriangleObstaclePart extends RotatingObstaclePart {
+    class TriangleObstaclePart extends RotatingObstaclePart {
 
-	    private final static double innerSide = 170;
-	    private final static double width = 15;
+        private final static double innerSide = 170;
+        private final static double width = 15;
 
-	    public TriangleObstaclePart(double centreX, double centreY, double initialAngle, int sideColor) {
-	        super(centreX, centreY, sideColor, initSpeed, initialAngle);
-	    }
+        public TriangleObstaclePart(double centreX, double centreY, double initialAngle, int sideColor) {
+            super(centreX, centreY, sideColor, initSpeed, initialAngle);
+        }
 
-	    @Override
-	    public void drawNode() {
+        @Override
+        public void drawNode() {
 
-	    	super.drawNode();
-	    	
-	        double i = TriangleObstaclePart.innerSide;
-	        double w = TriangleObstaclePart.width;
+            super.drawNode();
 
-	        double P1x, P2x, P3x, P4x, P1y, P2y, P3y, P4y;
+            double i = TriangleObstaclePart.innerSide;
+            double w = TriangleObstaclePart.width;
 
-	        P1x = this.getX()+(i/2);
-	        P2x = P1x - i - (w/Math.sin(Math.PI/3));
-	        P4x = P1x + w*(Math.tan(Math.PI/6));
-	        P3x = P2x - w*(Math.tan(Math.PI/6));
+            double P1x, P2x, P3x, P4x, P1y, P2y, P3y, P4y;
 
-	        P1y = this.getY() + i*Math.sin(Math.PI/3)/3;
-	        P2y = P1y;
-	        P3y = P2y + w;
-	        P4y = P3y;
+            P1x = this.getX()+(i/2);
+            P2x = P1x - i - (w/Math.sin(Math.PI/3));
+            P4x = P1x + w*(Math.tan(Math.PI/6));
+            P3x = P2x - w*(Math.tan(Math.PI/6));
 
-	        MoveTo m1 = new MoveTo(P1x, P1y);
+            P1y = this.getY() + i*Math.sin(Math.PI/3)/3;
+            P2y = P1y;
+            P3y = P2y + w;
+            P4y = P3y;
 
-	        HLineTo hl1 = new HLineTo(P2x);
+            MoveTo m1 = new MoveTo(P1x, P1y);
 
-	        LineTo dl1 = new LineTo(P3x, P3y);
+            HLineTo hl1 = new HLineTo(P2x);
 
-	        HLineTo hl2 = new HLineTo(P4x);
+            LineTo dl1 = new LineTo(P3x, P3y);
 
-	        LineTo dl2 = new LineTo(P1x, P1y);
+            HLineTo hl2 = new HLineTo(P4x);
 
-	        obstaclePartNode.getElements().addAll(m1,hl1,dl1,hl2,dl2);
+            LineTo dl2 = new LineTo(P1x, P1y);
 
-	    }
+            obstaclePartNode.getElements().addAll(m1,hl1,dl1,hl2,dl2);
 
-	}
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	
-	private static final int initSpeed = 5;
-	private static final double initX = Game.getScreenwidth()/2;
+        }
+
+    }
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
+
+    private static final int initSpeed = 5;
+    private static final double initX = Game.getScreenwidth()/2;
 
     public TriangleObstacle(double y) {
-    	super(initX, y, initSpeed);
+        super(initX, y, initSpeed);
     }
 
     @Override

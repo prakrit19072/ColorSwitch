@@ -8,63 +8,63 @@ import main_src.Game;
 
 public class CircleObstacle extends Obstacle {
 
-	class CircleObstaclePart extends RotatingObstaclePart {
+    class CircleObstaclePart extends RotatingObstaclePart {
 
-	    private final static double outerRadius = 90;
-	    private final static double innerRadius = 75;
+        private final static double outerRadius = 90;
+        private final static double innerRadius = 75;
 
-	    public CircleObstaclePart(double centreX, double centreY, double initialAngle, int arcColor) {
-	        super(centreX, centreY, arcColor, initSpeed, initialAngle);
-	    }
+        public CircleObstaclePart(double centreX, double centreY, double initialAngle, int arcColor) {
+            super(centreX, centreY, arcColor, initSpeed, initialAngle);
+        }
 
-	    @Override
-	    public void drawNode() {
-	        // TODO Auto-generated method stub
-	    	super.drawNode();
-	    	
-	        double centreX = this.getX();
-	        double centreY = this.getY();
+        @Override
+        public void drawNode() {
+            // TODO Auto-generated method stub
+            super.drawNode();
 
-	        MoveTo m1 = new MoveTo();
-	        m1.setX(centreX+innerRadius);
-	        m1.setY(centreY);
+            double centreX = this.getX();
+            double centreY = this.getY();
 
-	        ArcTo ai = new ArcTo();
-	        ai.setX(centreX);
-	        ai.setY(centreY-innerRadius);
-	        ai.setRadiusX(innerRadius);
-	        ai.setRadiusY(innerRadius);
+            MoveTo m1 = new MoveTo();
+            m1.setX(centreX+innerRadius);
+            m1.setY(centreY);
 
-	        VLineTo ll = new VLineTo();
-	        ll.setY(centreY-outerRadius);
+            ArcTo ai = new ArcTo();
+            ai.setX(centreX);
+            ai.setY(centreY-innerRadius);
+            ai.setRadiusX(innerRadius);
+            ai.setRadiusY(innerRadius);
 
-	        MoveTo m2 = new MoveTo();
-	        m2.setX(centreX+innerRadius);
-	        m2.setY(centreY);
+            VLineTo ll = new VLineTo();
+            ll.setY(centreY-outerRadius);
 
-	        HLineTo rl = new HLineTo();
-	        rl.setX(centreX+outerRadius);
+            MoveTo m2 = new MoveTo();
+            m2.setX(centreX+innerRadius);
+            m2.setY(centreY);
 
-	        ArcTo ao = new ArcTo();
-	        ao.setX(centreX);
-	        ao.setY(centreY-outerRadius);
-	        ao.setRadiusX(outerRadius);
-	        ao.setRadiusY(outerRadius);
+            HLineTo rl = new HLineTo();
+            rl.setX(centreX+outerRadius);
 
-	        obstaclePartNode.getElements().addAll(m1,ai,ll,m2,rl,ao);
+            ArcTo ao = new ArcTo();
+            ao.setX(centreX);
+            ao.setY(centreY-outerRadius);
+            ao.setRadiusX(outerRadius);
+            ao.setRadiusY(outerRadius);
 
-	    }
-	}
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	
-	private static final int initSpeed = 5;
-	private static final double initX = Game.getScreenwidth()/2;
+            obstaclePartNode.getElements().addAll(m1,ai,ll,m2,rl,ao);
 
-	public CircleObstacle(double y) {
-		super(initX, y, initSpeed);
+        }
+    }
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
+
+    private static final int initSpeed = 5;
+    private static final double initX = Game.getScreenwidth()/2;
+
+    public CircleObstacle(double y) {
+        super(initX, y, initSpeed);
     }
 
     @Override
@@ -79,3 +79,4 @@ public class CircleObstacle extends Obstacle {
     }
 
 }
+
